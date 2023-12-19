@@ -2,10 +2,12 @@ import React, { useState, useEffect, image } from "react";
 import { StatusBar, SafeAreaView, StyleSheet, Text, View, Alert, TouchableOpacity, ImageBackground } from "react-native";
 import Card from "../components/Card";
 import Score from "../components/Score";
+import { useNavigation } from '@react-navigation/native';
 // import cardData from "../assets/data/cardsData.json";
 
 const GameScreen = () => {
     // const { cards } = cardData;
+    const navigation = useNavigation();
     const cards = [
         require('../assets/image/01.png'),
         require('../assets/image/02.png'),
@@ -19,7 +21,7 @@ const GameScreen = () => {
     const [selectedCards, setSelectedCards] = useState([]);
     const [matchedCards, setMatchedCards] = useState([]);
     const [score, setScore] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(6000);
+    const [timeLeft, setTimeLeft] = useState(60);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -39,7 +41,7 @@ const GameScreen = () => {
         setSelectedCards([]);
         setMatchedCards([]);
         setScore(0);
-        setTimeLeft(60000);
+        setTimeLeft(60);
     };
 
     useEffect(() => {
@@ -50,7 +52,7 @@ const GameScreen = () => {
             if (firstCard === secondCard) {
                 setMatchedCards([...matchedCards, ...selectedCards]);
                 setSelectedCards([]);
-                setScore(prevScore => prevScore + 1);
+                setScore(prevScore => prevScore + 10);
             } else {
                 setScore(prevScore => prevScore - 1);
 
@@ -77,6 +79,9 @@ const GameScreen = () => {
             <Text style={styles.title}>
                 {didPlayerWin() ? "Congratulations 🎉" : "Guerrero Z"}
             </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('MainTab')}>
+        <Text style={styles.timerIcon} >🔙</Text>
+      </TouchableOpacity>
             <Text style={styles.timer}>Timer: {timeLeft}</Text>
             {/* <Timer onTimeOut={handleGameOver} /> */}
             <Score score={score} />
@@ -153,6 +158,14 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
     },
+    timerIcon: {
+        fontSize: 50,
+        fontWeight: 'bold',
+        position: 'absolute',
+        top: 1,
+        right: 100,
+        // Agrega estilos adicionales según tus necesidades
+      },
 });
 
 function shuffle(array) {

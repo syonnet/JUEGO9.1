@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ImageBackground,Text } from 'react-native';
+import { View, StyleSheet, ImageBackground,Text, Button as ButtonR } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { ref, onValue, update } from 'firebase/database';
 import { db } from '../config/Config';
 import { Card, DataTable, Button, Dialog, Portal, TextInput, Title } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const [userData, setUserData] = useState({});
   const [editingAge, setEditingAge] = useState(false);
   const [ageInput, setAgeInput] = useState('');
   const [visible, setVisible] = useState(false);
+
+  const navigation = useNavigation();
+  const handleNavigateToGameScreen = () => {
+    navigation.navigate('GameScreen'); 
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -94,8 +100,17 @@ const ProfileScreen = () => {
               )}
             </View>
           </Card.Content>
+          
         </Card>
+        <Button
+        mode="contained"
+        onPress={handleNavigateToGameScreen}
+        style={styles.button}
+      >
+        Jugar Juego
+      </Button>
       </ImageBackground>
+     
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
           <Dialog.Title>Edad Cambiada</Dialog.Title>

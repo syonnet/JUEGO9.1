@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Text, Alert } from "react-native";
+import { Text } from "react-native";
 
-const Timer = ({ onTimeOut }) => {
+const Timer = ({ onTimeOut, setBoard, setSelectedCards, setMatchedCards, setScore }) => {
   const [timeLeft, setTimeLeft] = useState(60);
 
   useEffect(() => {
     const timer = setInterval(() => {
       if (timeLeft === 0) {
         clearInterval(timer);
-        onTimeOut();
+        onTimeOut(); // Llamar a la función onTimeOut proporcionada por el GameScreen
       } else {
         setTimeLeft(timeLeft - 1);
       }
@@ -17,7 +17,11 @@ const Timer = ({ onTimeOut }) => {
     return () => clearInterval(timer);
   }, [timeLeft, onTimeOut]);
 
-  return <Text style={{ fontSize: 24, fontWeight: "bold", color: "white", marginBottom: 10 }}>Timer: {timeLeft}</Text>;
+  return (
+    <Text style={{ fontSize: 24, fontWeight: "bold", color: "white", marginBottom: 10 }}>
+      Timer: {timeLeft}
+    </Text>
+  );
 };
 
 export default Timer;
