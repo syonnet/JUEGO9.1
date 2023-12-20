@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ImageBackground,Text, Button as ButtonR } from 'react-native';
+import { View, StyleSheet, ImageBackground, Text } from 'react-native';
+import { Card, Button, Dialog, Portal, TextInput, List } from 'react-native-paper';
 import { getAuth } from 'firebase/auth';
 import { ref, onValue, update } from 'firebase/database';
 import { db } from '../config/Config';
-import { Card, DataTable, Button, Dialog, Portal, TextInput, Title } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
   const [userData, setUserData] = useState({});
@@ -14,7 +15,7 @@ const ProfileScreen = () => {
 
   const navigation = useNavigation();
   const handleNavigateToGameScreen = () => {
-    navigation.navigate('GameScreen'); 
+    navigation.navigate('GameScreen');
   };
 
   useEffect(() => {
@@ -58,6 +59,12 @@ const ProfileScreen = () => {
 
   const hideDialog = () => setVisible(false);
 
+  const listItems = [
+    { title: '📧​Correo electrónico:', value: userData.email || 'No disponible' },
+    { title: '😎​Nombre de usuario:', value: userData.username || 'No disponible' },
+    { title: '🎂​Edad:', value: userData.age || 'No disponible' },
+  ];
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -66,20 +73,19 @@ const ProfileScreen = () => {
       >
         <Card style={styles.card}>
           <Card.Content>
-            <DataTable>
-              <DataTable.Row>
-                <DataTable.Cell >Correo electrónico:</DataTable.Cell>
-                <DataTable.Cell>{userData.email || 'No disponible'}</DataTable.Cell>
-              </DataTable.Row>
-              <DataTable.Row>
-                <DataTable.Cell >Nombre de usuario:</DataTable.Cell>
-                <DataTable.Cell>{userData.username || 'No disponible'}</DataTable.Cell>
-              </DataTable.Row>
-              <DataTable.Row>
-                <DataTable.Cell >Edad:</DataTable.Cell>
-                <DataTable.Cell>{userData.age || 'No disponible'}</DataTable.Cell>
-              </DataTable.Row>
-            </DataTable>
+            <FontAwesome name="gears" size={100} color="black" style={styles.emoji} />
+            <List.Section>
+              {listItems.map((item, index) => (
+                <List.Item
+                key={index}
+                titleStyle={styles.itemTitle}
+                descriptionStyle={styles.userData} // Ajuste aquí para el tamaño de la fuente
+                title={item.title}
+                description={item.value}
+                style={styles.listItem}
+              />
+              ))}
+            </List.Section>
             <View style={styles.editAge}>
               {editingAge ? (
                 <View>
@@ -100,17 +106,16 @@ const ProfileScreen = () => {
               )}
             </View>
           </Card.Content>
-          
         </Card>
         <Button
-        mode="contained"
-        onPress={handleNavigateToGameScreen}
-        style={styles.button}
-      >
-        Jugar Juego
-      </Button>
+          mode="contained"
+          onPress={handleNavigateToGameScreen}
+          style={styles.button}
+        >
+          Jugar Juego
+        </Button>
       </ImageBackground>
-     
+
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
           <Dialog.Title>Edad Cambiada</Dialog.Title>
@@ -132,13 +137,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
- 
+  userData: {
+    fontSize: 18,
+  },
+  emoji: {
+    alignSelf: 'center',
+    marginBottom: -5,
+  },
+
   card: {
     width: '80%',
     borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    marginTop:150,
-
+    marginTop: 10,
+    alignItems: 'center',
   },
   backgroundImage: {
     flex: 1,
@@ -152,6 +164,16 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#fc6e6e',
+  },
+  itemTitle: {
+    fontWeight: 'bold',
+    color: '#333',
+    fontSize:19,
+    alignItems: 'center',
   },
 });
 

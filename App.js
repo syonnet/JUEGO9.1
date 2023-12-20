@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import GameScreen from './screens/GameScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import ScoresScreen from './screens/ScoresScreen';
 
 
 const App = () => {
@@ -14,10 +15,10 @@ const App = () => {
         <PaperProvider >
           <AppNavigator />
           {/* <GameScreen/> */}
-          {/* <ProfileScreen /> */}
+          {/* <ScoresScreen /> */}
         </PaperProvider>
       </SafeAreaProvider>
-    //  </NavigationContainer>
+      // </NavigationContainer>
   );
 };
 
