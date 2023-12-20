@@ -6,6 +6,7 @@ import { ref, onValue, update } from 'firebase/database';
 import { db } from '../config/Config';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useFonts } from "expo-font";
 
 const ProfileScreen = () => {
   const [userData, setUserData] = useState({});
@@ -18,6 +19,9 @@ const ProfileScreen = () => {
     navigation.navigate('GameScreen');
   };
 
+
+ 
+  
   useEffect(() => {
     const auth = getAuth();
     const userId = auth.currentUser.uid;
@@ -64,7 +68,13 @@ const ProfileScreen = () => {
     { title: '😎​Nombre de usuario:', value: userData.username || 'No disponible' },
     { title: '🎂​Edad:', value: userData.age || 'No disponible' },
   ];
+  const [fontsLoaded] = useFonts({
+    gumela: require("../assets/fonts/Gumela.ttf"),
+  });
 
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -79,7 +89,7 @@ const ProfileScreen = () => {
                 <List.Item
                 key={index}
                 titleStyle={styles.itemTitle}
-                descriptionStyle={styles.userData} // Ajuste aquí para el tamaño de la fuente
+                descriptionStyle={styles.userData} 
                 title={item.title}
                 description={item.value}
                 style={styles.listItem}
@@ -139,6 +149,8 @@ const styles = StyleSheet.create({
   },
   userData: {
     fontSize: 18,
+    fontFamily:'gumela',
+
   },
   emoji: {
     alignSelf: 'center',
@@ -174,6 +186,7 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize:19,
     alignItems: 'center',
+    
   },
 });
 

@@ -3,11 +3,12 @@ import { View, ImageBackground, StyleSheet, Text } from "react-native";
 import { Card, ListItem, Icon } from 'react-native-elements';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../config/Config';
+import { useFonts } from "expo-font";
 
 export default function ScoresScreen() {
   const [userScores, setUserScores] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
     const userScoresRef = ref(db, '/usuarios_DMZ');
 
     const fetchData = async () => {
@@ -35,6 +36,14 @@ export default function ScoresScreen() {
     </View>
   );
 
+
+const [fontsLoaded] = useFonts({
+  gumela: require("../assets/fonts/Gumela.ttf"),
+});
+
+if (!fontsLoaded) {
+  return null;
+}
   return (
     <ImageBackground source={require('../assets/image/p.png')} style={styles.backgroundImage}>
       <View style={styles.container}>
@@ -75,6 +84,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: '#fff',
     marginVertical: 20,
+    fontFamily:'gumela',
+    
   },
   scoresList: {
     paddingBottom: 20,
@@ -98,5 +109,6 @@ const styles = StyleSheet.create({
   userScore: {
     fontSize: 14,
     color: '#fe3939',
+    
   },
 });
