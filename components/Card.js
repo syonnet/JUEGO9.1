@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable,Image } from "react-native";
+import { StyleSheet, Pressable,Image } from "react-native";
 
 const Card = ({ onPress, isTurnedOver, children }) => {
   return (

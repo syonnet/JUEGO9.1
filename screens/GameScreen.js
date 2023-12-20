@@ -1,12 +1,11 @@
-import React, { useState, useEffect, image } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StatusBar, SafeAreaView, StyleSheet, Text, View, Alert, TouchableOpacity, ImageBackground } from "react-native";
 import Card from "../components/Card";
 import Score from "../components/Score";
 import { useNavigation } from '@react-navigation/native';
-// import cardData from "../assets/data/cardsData.json";
+import { Audio } from 'expo-av';
 
 const GameScreen = () => {
-    // const { cards } = cardData;
     const navigation = useNavigation();
     const cards = [
         require('../assets/image/01.png'),
@@ -16,35 +15,51 @@ const GameScreen = () => {
         require('../assets/image/05.png'),
         require('../assets/image/06.png')
     ];
+    const Golden = 'golden.ttf';
+    const Gumela = 'Gumela.ttf';
 
     const [board, setBoard] = useState(() => shuffle([...cards, ...cards]));
     const [selectedCards, setSelectedCards] = useState([]);
     const [matchedCards, setMatchedCards] = useState([]);
     const [score, setScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(60);
+    const timerRef = useRef(null);
 
+    const [sound, setSound] = useState();
+
+    const loadSuccessSound = async () => {
+        const { sound } = await Audio.Sound.createAsync(
+            require('../assets/ok.mp3')
+        );
+        setSound(sound);
+    };
+
+    const playSuccessSound = async () => {
+        try {
+            if (!sound) {
+                await loadSuccessSound();
+            }
+
+            if (sound) {
+                await sound.replayAsync();
+            }
+        } catch (error) {
+        }
+    };
     useEffect(() => {
-        const timer = setInterval(() => {
+        timerRef.current = setInterval(() => {
             if (timeLeft === 0) {
-                clearInterval(timer);
-                Alert.alert("Game Over", "Intentalo de nuevo Guerrero Z", [{ text: "OK", onPress: handleGameOver }]);
+                clearInterval(timerRef.current);
+                handleGameOver();
             } else {
-                setTimeLeft(timeLeft - 1);
+                setTimeLeft(prevTime => prevTime - 1);
             }
         }, 1000);
 
-        return () => clearInterval(timer);
+        return () => clearInterval(timerRef.current);
     }, [timeLeft]);
 
-    const handleGameOver = () => {
-        setBoard(() => shuffle([...cards, ...cards]));
-        setSelectedCards([]);
-        setMatchedCards([]);
-        setScore(0);
-        setTimeLeft(60);
-    };
-
-    useEffect(() => {
+    useEffect(() => {    //  lógica para verificar si las cartas son iguales
         if (selectedCards.length === 2) {
             const firstCard = board[selectedCards[0]];
             const secondCard = board[selectedCards[1]];
@@ -53,6 +68,9 @@ const GameScreen = () => {
                 setMatchedCards([...matchedCards, ...selectedCards]);
                 setSelectedCards([]);
                 setScore(prevScore => prevScore + 10);
+
+                playSuccessSound();
+
             } else {
                 setScore(prevScore => prevScore - 1);
 
@@ -65,50 +83,105 @@ const GameScreen = () => {
         }
     }, [selectedCards, board, matchedCards]);
 
+    const handleBlur = () => {
+        clearInterval(timerRef.current);
+    };
+
+    const handleFocus = () => {
+        setTimeLeft(60); // Reiniciar el temporizador al entrar en la pantalla
+    };
+
+    useEffect(() => {
+        const unsubscribeBlur = navigation.addListener('blur', handleBlur);
+        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
+
+        return () => {
+            unsubscribeBlur();
+            unsubscribeFocus();
+        };
+    }, [navigation]);
+
+
     const handleTapCard = (index) => {
         if (selectedCards.length >= 2 || selectedCards.includes(index)) return;
         setSelectedCards([...selectedCards, index]);
     };
 
     const didPlayerWin = () => matchedCards.length === board.length;
-    const resetGame = () => { setMatchedCards([]); setScore(0); setSelectedCards([]); setTimeLeft(60) };
+
+    const handleGameOver = () => {
+        Alert.alert(
+            "Game Over",
+            "¿Quieres intentarlo de nuevo?",
+            [
+                {
+                    text: "Sí",
+                    onPress: () => {
+                        resetGame();
+                    }
+                },
+                {
+                    text: "No",
+                    onPress: () => {
+                        navigation.navigate('MainTab'); // Regresar a la pantalla de perfil al presionar "No"
+                    }
+                }
+            ],
+            { cancelable: false }
+        );
+    };
+
+    const resetGame = () => {
+        setBoard(() => shuffle([...cards, ...cards]));
+        setSelectedCards([]);
+        setMatchedCards([]);
+        setScore(0);
+        setTimeLeft(60);
+    };
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+            [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+        }
+        return array;
+    }
 
     return (
         <ImageBackground source={require('../assets/image/g.png')} style={styles.backgroundImage}>
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>
-                {didPlayerWin() ? "Congratulations 🎉" : "Guerrero Z"}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('MainTab')}>
-        <Text style={styles.timerIcon} >🔙</Text>
-      </TouchableOpacity>
-            <Text style={styles.timer}>Timer: {timeLeft}</Text>
-            {/* <Timer onTimeOut={handleGameOver} /> */}
-            <Score score={score} />
-            <View style={styles.board}>
-                {board.map((card, index) => {
-                    const isTurnedOver =
-                        selectedCards.includes(index) || matchedCards.includes(index);
-                    return (
-                        <Card
-                            key={index}
-                            isTurnedOver={isTurnedOver}
-                            onPress={() => handleTapCard(index)}
-                        >
-                        { card }
-                        </Card>
-            );
-                })}
-        </View>
-            {
-        didPlayerWin() && (
-            <TouchableOpacity style={styles.button} onPress={resetGame}>
-                <Text style={styles.buttonText}>Jugar Otra Vez</Text>
-            </TouchableOpacity>
-        )
-    }
-    <StatusBar style="light" />
-        </SafeAreaView >
+            <SafeAreaView style={styles.container}>
+                <Text style={{ fontFamily: 'golden-regular', fontSize: 36, color:'#1d5996ed' }}>
+                    {didPlayerWin() ? "🎉Felicidades 🎉" : "Guerrero Z"}
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('MainTab')}>
+                    <Text style={styles.timerIcon} >🔙</Text>
+                </TouchableOpacity>
+                <Text style={{ fontFamily: 'Gumela', fontSize: 26 }}>Timer: {timeLeft}</Text>
+                <Score score={score} />
+                <View style={styles.board}>
+                    {board.map((card, index) => {
+                        const isTurnedOver =
+                            selectedCards.includes(index) || matchedCards.includes(index);
+                        return (
+                            <Card
+                                key={index}
+                                isTurnedOver={isTurnedOver}
+                                onPress={() => handleTapCard(index)}
+                            >
+                                {card}
+                            </Card>
+                        );
+                    })}
+                </View>
+                {
+                    didPlayerWin() && (
+                        <TouchableOpacity style={styles.button} onPress={resetGame}>
+                            <Text style={styles.buttonText}>Jugar Otra Vez</Text>
+                        </TouchableOpacity>
+                    )
+                }
+                <StatusBar style="light" />
+            </SafeAreaView >
         </ImageBackground >
     );
 };
@@ -118,13 +191,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#da9b2545",
         alignItems: "center",
-        justifyContent: "start",
+        justifyContent: "center",
     },
     backgroundImage: {
         flex: 1,
         resizeMode: "cover",
         justifyContent: "center"
-      },
+    },
     board: {
         flexDirection: "row",
         justifyContent: "center",
@@ -137,12 +210,7 @@ const styles = StyleSheet.create({
         marginVertical: 15,
         textAlign: "center",
     },
-    timer: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "white",
-        marginBottom: 10,
-    },
+
     buttonContainer: {
         alignItems: "center",
         marginTop: 20,
@@ -164,17 +232,10 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 1,
         right: 100,
-        // Agrega estilos adicionales según tus necesidades
-      },
+    },
 });
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const randomIndex = Math.floor(Math.random() * (i + 1));
-        [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
-    }
-    return array;
-}
+
 
 export default GameScreen;
 

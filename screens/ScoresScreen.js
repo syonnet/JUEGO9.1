@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { View, ImageBackground, StyleSheet, Text } from "react-native";
-import { Card, ListItem, Icon } from 'react-native-elements';
+import { Card,  Icon } from 'react-native-elements';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../config/Config';
 import { useFonts } from "expo-font";
 
+import { Video } from "expo-av";
+
 export default function ScoresScreen() {
   const [userScores, setUserScores] = useState([]);
+  const Golden = 'golden.ttf';
+  const Gumela = 'Gumela.ttf';
 
     useEffect(() => {
     const userScoresRef = ref(db, '/usuarios_DMZ');
@@ -30,7 +34,7 @@ export default function ScoresScreen() {
     <View style={[styles.listItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : '#e6e6e6' }]}>
       <Icon name="user" type="font-awesome" color="#900" />
       <View style={styles.userDetails}>
-        <Text style={styles.userName}>{`Nombre: ${item.username ? item.username : "No disponible"}`}</Text>
+        <Text style={styles.userName}>{`Jugador: ${item.username ? item.username : "No disponible"}`}</Text>
         <Text style={styles.userScore}>{`Puntaje: ${item.puntaje || 0}`}</Text>
       </View>
     </View>
@@ -45,10 +49,17 @@ if (!fontsLoaded) {
   return null;
 }
   return (
-    <ImageBackground source={require('../assets/image/p.png')} style={styles.backgroundImage}>
+    // <ImageBackground source={require('../assets/image/p.png')} style={styles.backgroundImage}>
       <View style={styles.container}>
+        <Video
+        source={require("../assets/video/bV.mp4")}
+        style={StyleSheet.absoluteFillObject}
+        resizeMode="cover"
+        isLooping
+        shouldPlay
+      />
         <Card containerStyle={styles.card}>
-          <Text style={styles.title}>Scores Z</Text>
+          <Text style={{ fontFamily: 'golden-regular', fontSize: 56,textAlign: "center",marginVertical: 20, }}>Scores Z</Text>
           <View style={styles.scoresList}>
             {userScores.map((user, index) => (
               <View key={index}>
@@ -58,7 +69,7 @@ if (!fontsLoaded) {
           </View>
         </Card>
       </View>
-    </ImageBackground>
+    // </ImageBackground>
   );
 }
 
@@ -84,7 +95,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: '#fff',
     marginVertical: 20,
-    fontFamily:'gumela',
     
   },
   scoresList: {

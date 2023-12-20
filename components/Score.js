@@ -4,10 +4,15 @@ import { getAuth } from 'firebase/auth';
 import { ref, onValue, set } from 'firebase/database';
 import { db } from '../config/Config';
 
+
 export default function Score({ score }) {
   const style = score > 10 ? styles.highScore : styles.score;
   const [userData, setUserData] = useState({});
   const gameTimeRef = useRef(0);
+
+  const Golden = 'golden.ttf';
+  const Gumela = 'Gumela.ttf';
+
 
   useEffect(() => {
     const auth = getAuth();
@@ -45,10 +50,12 @@ export default function Score({ score }) {
     return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
   }, [score]);
 
+
+
   return (
     <View>
-      <Text>{`Jugador: ${userData.username ? userData.username : "No disponible"}`}</Text>
-      <Text style={style}>
+      {/* <Text>{`Jugador: ${userData.username ? userData.username : "No disponible"}`}</Text> */}
+      <Text style={{ fontFamily: 'golden-regular', fontSize: 36 }}>
         Score: {score}
       </Text>
     </View>
@@ -59,11 +66,11 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 32,
     fontWeight: "900",
-    color: "white"
+    color: "white",
   },
   highScore: {
     fontSize: 32,
     fontWeight: "900",
-    color: "#010402"
+    color: "#22fc6b"
   }
 });

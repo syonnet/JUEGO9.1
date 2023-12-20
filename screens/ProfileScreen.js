@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ImageBackground, Text } from 'react-native';
 import { Card, Button, Dialog, Portal, TextInput, List } from 'react-native-paper';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { ref, onValue, update } from 'firebase/database';
 import { db } from '../config/Config';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useFonts } from "expo-font";
 
 const ProfileScreen = () => {
+  
   const [userData, setUserData] = useState({});
   const [editingAge, setEditingAge] = useState(false);
   const [ageInput, setAgeInput] = useState('');
@@ -18,8 +19,22 @@ const ProfileScreen = () => {
   const handleNavigateToGameScreen = () => {
     navigation.navigate('GameScreen');
   };
+ 
+ 
+ ///////////////////////////////////////////////
+//  const currentUser = auth.currentUser;
 
-
+//  const handleSignOut = () => {
+//    signOut(auth)
+//      .then(() => {
+//       navigation.navigate('WelcomeStack');// Aquí podrías agregar la navegación a la pantalla de inicio o a la pantalla de autenticación
+//     })
+//     .catch((error) => {
+//       // Manejar errores si ocurre algún problema al cerrar sesión
+//       console.error('Error al cerrar sesión:', error.message);
+//     });
+// };
+////////////////////////////////////////////////
  
   
   useEffect(() => {
@@ -68,6 +83,7 @@ const ProfileScreen = () => {
     { title: '😎​Nombre de usuario:', value: userData.username || 'No disponible' },
     { title: '🎂​Edad:', value: userData.age || 'No disponible' },
   ];
+  
   const [fontsLoaded] = useFonts({
     gumela: require("../assets/fonts/Gumela.ttf"),
   });
@@ -75,6 +91,7 @@ const ProfileScreen = () => {
   if (!fontsLoaded) {
     return null;
   }
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -123,7 +140,10 @@ const ProfileScreen = () => {
           style={styles.button}
         >
           Jugar Juego
-        </Button>
+        {/* </Button>
+        <Button mode="contained" onPress={handleSignOut} style={styles.logoutButton}>
+        Cerrar sesión */}
+      </Button>
       </ImageBackground>
 
       <Portal>
@@ -187,6 +207,9 @@ const styles = StyleSheet.create({
     fontSize:19,
     alignItems: 'center',
     
+  },
+  logoutButton: {
+    marginTop: 20,
   },
 });
 
