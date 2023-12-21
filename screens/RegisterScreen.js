@@ -17,6 +17,29 @@ const RegisterScreen = ({ navigation }) => {
   const [uid, setUid] = useState('')
 
   const registro = () => {
+    switch (true) {
+      case !email || !username || !password || !age:
+        showMessage('Por favor, completa todos los campos.');
+        break;
+      case !hasAtSymbol(email):
+        showMessage('Ingresa un correo electrónico válido.');
+        break;
+      case password.length < 6:
+        showMessage('La contraseña debe tener al menos 6 caracteres.');
+        break;
+      default:
+        createUser();
+    }
+  };
+
+  const showMessage = (message) => {
+    Alert.alert('Error', message);
+  };
+
+  const hasAtSymbol = (email) => {
+    return email.includes('@');
+  };
+  const createUser = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Usuario registrado con éxito
@@ -30,11 +53,22 @@ const RegisterScreen = ({ navigation }) => {
         // ...
       })
       .catch((error) => {
-        const errorMessage = error.message;
-        console.error(errorMessage);
-        Alert.alert('Error', errorMessage);
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            showMessage('Este correo ya está registrado. ¡Prueba con otro!');
+            break;
+          case 'auth/invalid-email':
+            showMessage('El formato del correo electrónico es inválido.');
+            break;
+          case 'auth/weak-password':
+            showMessage('La contraseña es débil. ¡Intenta con una más fuerte!');
+            break;
+          default:
+            showMessage('Hubo un error al registrar. Inténtalo nuevamente más tarde.');
+        }
       });
   };
+
   function writeUserData(uid, correog, password) {
     const usersRef = ref(db, 'usuarios_DMZ/' + uid); // Utiliza la UID como la ruta en la base de datos
 
@@ -63,11 +97,11 @@ const RegisterScreen = ({ navigation }) => {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Avatar />
-          {/* <Text style={styles.title}>¡Regístrate!</Text> */}
           <TextInput
             label="Correo Electrónico"
             value={email}
             onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
             style={styles.input}
             left={<TextInput.Icon icon="mail" />}
           />
@@ -94,18 +128,17 @@ const RegisterScreen = ({ navigation }) => {
             style={styles.input}
             left={<TextInput.Icon icon="calendar" />}
           />
-          <View style={styles.buttonContainer}>
+          {/* <View style={styles.buttonContainer}> */}
             <Button
               mode="contained"
               onPress={registro}
               style={styles.button}
               labelStyle={styles.buttonLabel}
-              icon={() => <Icon name="arrow-right" size={20} color="#121212" />}
+              icon={() => <Icon name="arrow-right" size={30} color="#121212" />}
             >
               Registrarse
             </Button>
-
-          </View>
+          {/* </View> */}
         </ScrollView>
         <View style={styles.snackbarContainer}>
           <Snackbar
@@ -130,46 +163,30 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.22)',
+    padding: 50,
+    backgroundColor: 'rgba(64, 64, 64, 0.26)',
     paddingTop: 250,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logo: {
-    width: 200,
-    height: 100,
-  },
-  formContainer: {
-    marginBottom: 20,
-  },
-  title: {
-    textAlign: 'center',
-    marginVertical: 20,
-    color: '#FFEB3B',
-    fontWeight: 'bold',
-    fontSize: 36,
-    fontStyle: 'italic',
-  },
+
   input: {
-    marginBottom: 10,
+    marginBottom: 15,
     backgroundColor: '#f0f0f0',
-    borderRadius: 35,
+    borderRadius: 15,
   },
   buttonContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 120,
   },
   button: {
-    backgroundColor: '#FFEB3B',
-    borderRadius: 10,
+    backgroundColor: '#c70000',
+    borderRadius: 25,
+    paddingVertical: 12,
+    elevation: 3,
   },
   buttonLabel: {
     color: '#121212',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 20,
   },
   snackbarContainer: {
     position: 'absolute',
@@ -182,6 +199,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignItems: 'center',
   },
+
 });
 
 export default RegisterScreen;

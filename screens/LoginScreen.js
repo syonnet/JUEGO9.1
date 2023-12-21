@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, ImageBackground, Image, Alert } from 'react-native';
-import { Text, TextInput, Button, Snackbar } from 'react-native-paper';
+import { StyleSheet, View, ImageBackground, Alert } from 'react-native';
+import { TextInput, Button, Snackbar, Card, Divider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { auth } from '../config/Config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -21,6 +21,8 @@ const LoginScreen = ({ navigation }) => {
         setPassword('');
         console.log(userCredential.user.uid)
       })
+
+
       .catch((error) => {
         const errorCode = error.code;
         let errorMessage = '';
@@ -47,18 +49,16 @@ const LoginScreen = ({ navigation }) => {
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
-        <View style={styles.logoContainer}>
-        </View>
-        <ScrollView contentContainerStyle={styles.formContainer}>
+        <Card style={styles.card}>
           <TextInput
             label="Nombre de Usuario"
-            mode="flat"
+            mode="outlined"
             value={username}
             onChangeText={(text) => setUsername(text)}
             style={styles.input}
-            
             left={<TextInput.Icon icon="account" />}
           />
+          <Divider style={styles.divider} />
           <TextInput
             label="Contraseña"
             value={password}
@@ -67,18 +67,16 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry
             left={<TextInput.Icon icon="lock" />}
           />
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              onPress={login}
-              style={styles.button}
-              labelStyle={styles.buttonLabel}
-              icon={() => <Icon name="arrow-right" size={20} color="#121212" />}
-            >
-              Iniciar Sesión
-            </Button>
-          </View>
-        </ScrollView>
+          <Button
+            mode="contained"
+            onPress={login}
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            icon={() => <Icon name="user" size={35} color="#121212" />} 
+          >
+            Iniciar Sesión
+          </Button>
+        </Card>
         <View style={styles.snackbarContainer}>
           <Snackbar
             visible={snackbarVisible}
@@ -105,57 +103,43 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 60,
-    backgroundColor: 'rgba(0, 0, 0, 0.14)',
-    paddingTop: 300,
-  },
-  logoContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  logo: {
-    width: 200,
-    height: 100,
-  },
-  formContainer: {
-    marginBottom: 20,
-  },
-  title: {
-    textAlign: 'center',
-    marginVertical: 20,
-    color: '#FFEB3B',
-    fontWeight: 'bold',
-    fontSize: 36,
-    fontStyle: 'italic',
+  card: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(195, 217, 218, 0.7)',
+    elevation: 4,
   },
   input: {
-    marginBottom: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 25,
-  },
-  buttonContainer: {
-    alignItems: 'center',
     marginBottom: 20,
-    paddingTop: 30,
+  },
+  divider: {
+    marginVertical: 10,
+    backgroundColor: '#000000',
   },
   button: {
-    backgroundColor: '#FFEB3B',
-    borderRadius: 10,
+    backgroundColor: '#FFC107',
+    borderRadius: 25,
+    paddingVertical: 12,
+    elevation: 3,
   },
   buttonLabel: {
     color: '#121212',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 20,
   },
   snackbarContainer: {
     position: 'absolute',
     bottom: 20,
-    width: '108%',
+    width: '100%',
     alignItems: 'center',
   },
   snackbar: {
     backgroundColor: '#4CAF50',
-    borderRadius: 100,
+    borderRadius: 10,
     alignItems: 'center',
   },
 });

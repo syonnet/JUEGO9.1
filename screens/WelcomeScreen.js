@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, ImageBackground, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ImageBackground, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { TouchableRipple, Text } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Audio } from 'expo-av';
+import { SocialIcon } from 'react-native-elements';
+import { Linking } from 'react-native';
 
 const WelcomeScreen = ({ navigation }) => {
   useEffect(() => {
@@ -41,6 +43,25 @@ const WelcomeScreen = ({ navigation }) => {
     };
   }, []);
 
+
+  const handleInstagramPress = () => {
+    Linking.openURL('https://www.instagram.com/');
+  };
+
+  const handleFacebookPress = () => {
+    Linking.openURL('https://www.facebook.com/');
+  };
+
+  const [youtubeCounter, setYoutubeCounter] = useState(0);
+
+  const handleYoutubePress = () => {
+    setYoutubeCounter(youtubeCounter + 1);
+
+    if (youtubeCounter >= 5) {
+      Alert.alert('¡Somos RSS Desing!', '¡Tienes el huevo de Pascua! 🥚🐇');
+      setYoutubeCounter(0);
+    }
+  };
   return (
     <ImageBackground
       source={require('../assets/image/w.png')}
@@ -66,6 +87,18 @@ const WelcomeScreen = ({ navigation }) => {
 
           </View>
         </TouchableRipple>
+        <View style={styles.socialIconsContainer}>
+          <TouchableRipple onPress={handleInstagramPress}>
+            <SocialIcon type="instagram" />
+          </TouchableRipple>
+          <TouchableRipple onPress={handleFacebookPress}>
+            <SocialIcon type="facebook" />
+          </TouchableRipple>
+          <TouchableOpacity onPress={handleYoutubePress}>
+            <SocialIcon type="youtube" />
+          </TouchableOpacity>
+        </View>
+
       </View>
     </ImageBackground>
   );
@@ -105,6 +138,11 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     backgroundColor: '#cc2e2e',
+  },
+  socialIconsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginBottom: -50,
   },
 });
 

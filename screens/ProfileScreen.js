@@ -1,42 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ImageBackground, Text } from 'react-native';
+import { View, StyleSheet, ImageBackground, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, Button, Dialog, Portal, TextInput, List } from 'react-native-paper';
 import { getAuth, signOut } from 'firebase/auth';
 import { ref, onValue, update } from 'firebase/database';
-import { db } from '../config/Config';
+import { db, auth } from '../config/Config';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useFonts } from "expo-font";
 
 const ProfileScreen = () => {
-  
   const [userData, setUserData] = useState({});
   const [editingAge, setEditingAge] = useState(false);
   const [ageInput, setAgeInput] = useState('');
   const [visible, setVisible] = useState(false);
-
   const navigation = useNavigation();
   const handleNavigateToGameScreen = () => {
     navigation.navigate('GameScreen');
   };
- 
- 
- ///////////////////////////////////////////////
-//  const currentUser = auth.currentUser;
 
-//  const handleSignOut = () => {
-//    signOut(auth)
-//      .then(() => {
-//       navigation.navigate('WelcomeStack');// Aquí podrías agregar la navegación a la pantalla de inicio o a la pantalla de autenticación
-//     })
-//     .catch((error) => {
-//       // Manejar errores si ocurre algún problema al cerrar sesión
-//       console.error('Error al cerrar sesión:', error.message);
-//     });
-// };
-////////////////////////////////////////////////
- 
-  
+  function handleLogout() {
+    Alert.alert(
+      'Confirmar',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          onPress: () => logout(),
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
+  function logout() {
+    signOut(auth)
+      .then(() => {
+        console.log('¡Cierre de sesión exitoso!');
+        navigation.navigate('Welcome');
+      })
+      .catch((error) => {
+        console.error('Error al cerrar sesión:', error.message);
+        Alert.alert('Error al cerrar sesión', error.message);
+      });
+  }
   useEffect(() => {
     const auth = getAuth();
     const userId = auth.currentUser.uid;
@@ -83,7 +93,7 @@ const ProfileScreen = () => {
     { title: '😎​Nombre de usuario:', value: userData.username || 'No disponible' },
     { title: '🎂​Edad:', value: userData.age || 'No disponible' },
   ];
-  
+
   const [fontsLoaded] = useFonts({
     gumela: require("../assets/fonts/Gumela.ttf"),
   });
@@ -104,13 +114,13 @@ const ProfileScreen = () => {
             <List.Section>
               {listItems.map((item, index) => (
                 <List.Item
-                key={index}
-                titleStyle={styles.itemTitle}
-                descriptionStyle={styles.userData} 
-                title={item.title}
-                description={item.value}
-                style={styles.listItem}
-              />
+                  key={index}
+                  titleStyle={styles.itemTitle}
+                  descriptionStyle={styles.userData}
+                  title={item.title}
+                  description={item.value}
+                  style={styles.listItem}
+                />
               ))}
             </List.Section>
             <View style={styles.editAge}>
@@ -140,10 +150,10 @@ const ProfileScreen = () => {
           style={styles.button}
         >
           Jugar Juego
-        {/* </Button>
-        <Button mode="contained" onPress={handleSignOut} style={styles.logoutButton}>
-        Cerrar sesión */}
-      </Button>
+        </Button>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
       </ImageBackground>
 
       <Portal>
@@ -166,10 +176,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   userData: {
     fontSize: 18,
-    fontFamily:'gumela',
+    fontFamily: 'gumela',
 
   },
   emoji: {
@@ -204,13 +215,23 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontWeight: 'bold',
     color: '#333',
-    fontSize:19,
+    fontSize: 19,
     alignItems: 'center',
-    
+
   },
   logoutButton: {
-    marginTop: 20,
+    backgroundColor: '#ff6347',
+    padding: 17,
+    borderRadius: 5,
+    marginTop: 15,
+    borderRadius: 50,
+
   },
+  buttonText: {
+    fontSize: 20,
+    fontFamily: 'golden-regular'
+
+  }
 });
 
 export default ProfileScreen;

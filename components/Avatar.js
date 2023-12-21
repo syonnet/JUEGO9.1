@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text,   TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Modal, Pressable } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from '../config/Config';
 import { Card, Button, IconButton } from 'react-native-paper';
 
 export default function Avatar() {
+  const [modalVisible, setModalVisible] = useState(false);
   const [imagen, setImagen] = useState('');
+  const Golden = 'golden.ttf';
+  const Gumela = 'Gumela.ttf';
 
   const pickImage = async (source) => {
     let result;
@@ -28,6 +31,7 @@ export default function Avatar() {
 
     if (!result.cancelled) {
       setImagen(result.assets[0].uri);
+      setModalVisible(false);
     }
   };
 
@@ -58,7 +62,6 @@ export default function Avatar() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seleccionar Foto de Perfil</Text>
       <Card style={styles.card}>
         {imagen ? (
           <Card.Cover source={{ uri: imagen }} style={styles.imagePreview} />
@@ -75,19 +78,11 @@ export default function Avatar() {
         <Card.Content>
           <Button
             mode="contained"
-            onPress={() => pickImage('camera')}
+            onPress={() => setModalVisible(true)}
             style={styles.button}
             labelStyle={styles.buttonText}
           >
-            Tomar Foto
-          </Button>
-          <Button
-            mode="contained"
-            onPress={() => pickImage('gallery')}
-            style={styles.button}
-            labelStyle={styles.buttonText}
-          >
-            Elegir de Galería
+            Foto de Perfil
           </Button>
           {imagen ? (
             <Button
@@ -101,6 +96,34 @@ export default function Avatar() {
           ) : null}
         </Card.Content>
       </Card>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(!modalVisible)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Seleccionar Foto</Text>
+            <Pressable
+              style={styles.modalButton}
+              onPress={() => {
+                pickImage('camera'); // Lógica para tomar una foto
+              }}
+            >
+              <Text style={styles.modalButtonText}>Tomar Foto</Text>
+            </Pressable>
+            <Pressable
+              style={styles.modalButton}
+              onPress={() => {
+                pickImage('gallery'); // Lógica para elegir desde la galería
+              }}
+            >
+              <Text style={styles.modalButtonText}>Elegir de Galería</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -120,13 +143,13 @@ const styles = StyleSheet.create({
     width: '80%',
     padding: 5,
     alignItems: 'center',
-    backgroundColor: 'rgba(230, 229, 229, 0.58)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    marginBottom: 10,
   },
   imagePreview: {
-    width: '60%',
     aspectRatio: 1,
-    borderRadius: 50,
-    marginVertical: 20,
+    borderRadius: 100,
+    marginVertical: 10,
     alignSelf: 'center',
   },
   closeIcon: {
@@ -139,6 +162,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10,
     width: '100%',
+    marginTop: 20,
   },
   buttonText: {
     fontSize: 16,
@@ -148,4 +172,47 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#007bff',
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalButton: {
+    marginBottom: 10,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#007bff',
+    width: 200,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+
+
 });

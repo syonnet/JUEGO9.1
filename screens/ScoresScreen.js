@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { View, ImageBackground, StyleSheet, Text } from "react-native";
-import { Card,  Icon } from 'react-native-elements';
+import { View, ImageBackground, StyleSheet, Text, ScrollView } from "react-native";
+import { Card, Icon } from 'react-native-elements';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../config/Config';
 import { useFonts } from "expo-font";
-
 import { Video } from "expo-av";
 
 export default function ScoresScreen() {
@@ -12,7 +11,7 @@ export default function ScoresScreen() {
   const Golden = 'golden.ttf';
   const Gumela = 'Gumela.ttf';
 
-    useEffect(() => {
+  useEffect(() => {
     const userScoresRef = ref(db, '/usuarios_DMZ');
 
     const fetchData = async () => {
@@ -20,7 +19,12 @@ export default function ScoresScreen() {
         const snapshot = await onValue(userScoresRef, (snapshot) => {
           const users = snapshot.val();
           const usersArray = users ? Object.values(users) : [];
-          setUserScores(usersArray);
+          // Ordenar los puntajes de mayor a menor
+          usersArray.sort((a, b) => (a.puntaje > b.puntaje ? -1 : 1));
+
+          // Tomamos los tres puntajes más altos
+          const topThreeScores = usersArray.slice(0, 4);
+          setUserScores(topThreeScores);
         });
       } catch (error) {
         console.error("Error fetching data:", error.message);
@@ -41,35 +45,37 @@ export default function ScoresScreen() {
   );
 
 
-const [fontsLoaded] = useFonts({
-  gumela: require("../assets/fonts/Gumela.ttf"),
-});
+  const [fontsLoaded] = useFonts({
+    gumela: require("../assets/fonts/Gumela.ttf"),
+  });
 
-if (!fontsLoaded) {
-  return null;
-}
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
-    // <ImageBackground source={require('../assets/image/p.png')} style={styles.backgroundImage}>
-      <View style={styles.container}>
-        <Video
+    <View style={styles.container}>
+      <Video
         source={require("../assets/video/bV.mp4")}
         style={StyleSheet.absoluteFillObject}
         resizeMode="cover"
         isLooping
         shouldPlay
       />
-        <Card containerStyle={styles.card}>
-          <Text style={{ fontFamily: 'golden-regular', fontSize: 56,textAlign: "center",marginVertical: 20, }}>Scores Z</Text>
-          <View style={styles.scoresList}>
-            {userScores.map((user, index) => (
-              <View key={index}>
-                {renderUserItem({ item: user, index: index })}
+      <Card containerStyle={styles.card}>
+        <Text style={{ fontFamily: 'golden-regular', fontSize: 46, textAlign: "center", color: "#fcfcfc" }}>Score Z</Text>
+        <ScrollView style={styles.scrollView}>
+          {userScores.slice(0, 10).map((user, index) => (
+            <View key={index} style={[styles.listItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : '#e6e6e6' }]}>
+              <Icon name="user" type="font-awesome" color="#900" />
+              <View style={styles.userDetails}>
+                <Text style={styles.userName}>{`Jugador: ${user.username ? user.username : "No disponible"}`}</Text>
+                <Text style={styles.userScore}>{`Puntaje: ${user.puntaje || 0}`}</Text>
               </View>
-            ))}
-          </View>
-        </Card>
-      </View>
-    // </ImageBackground>
+            </View>
+          ))}
+        </ScrollView>
+      </Card>
+    </View>
   );
 }
 
@@ -85,18 +91,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   card: {
-    backgroundColor: 'rgba(255, 0, 0, 0.37)', // Rojo transparente
+    backgroundColor: 'rgba(255, 0, 0, 0.37)',
     borderRadius: 10,
     width: '85%',
   },
-  title: {
-    fontSize: 42,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: '#fff',
-    marginVertical: 20,
-    
-  },
+
   scoresList: {
     paddingBottom: 20,
   },
@@ -106,7 +105,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 4,
     borderBottomColor: '#52525296',
-    borderRadius:12,
+    borderRadius: 12,
   },
   userDetails: {
     marginLeft: 15,
@@ -118,7 +117,10 @@ const styles = StyleSheet.create({
   },
   userScore: {
     fontSize: 14,
-    color: '#fe3939',
-    
+    color: '#3f7f24',
+
+  },
+  scrollView: {
+    maxHeight: 460, 
   },
 });
