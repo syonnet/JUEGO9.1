@@ -58,7 +58,7 @@ const WelcomeScreen = ({ navigation }) => {
     setYoutubeCounter(youtubeCounter + 1);
 
     if (youtubeCounter >= 5) {
-      Alert.alert('¡Somos RSS Desing!', '¡Tienes el huevo de Pascua! 🥚🐇');
+      Alert.alert('¡Somos RSS Desing!', '¡Tienes 1 huevo de Pascua!\n !! Encuentra los demas !! 🥚🐇');
       setYoutubeCounter(0);
     }
   };
